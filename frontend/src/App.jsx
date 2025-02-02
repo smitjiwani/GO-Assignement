@@ -23,12 +23,17 @@ function App() {
 
   async function addNumber() {
     try {
-      await axios.post('/api/numbers', { number: parseInt(newNumber) })
+      const num = parseInt(newNumber)
+      if (num === 0) {
+        alert('Zero is not allowed')
+        return
+      }
+      await axios.post('/api/numbers', { number: num })
       getNumbers()
       setNewNumber('')
       setError('')
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to add number')
+      setError(err.response?.data?.error || 'Failed to add number')
     }
   }
 
@@ -47,7 +52,7 @@ function App() {
       </div>
       {numbers && (
         <p className="number-list">
-          {numbers.join(", ")}
+          [{numbers.join(", ")}]
         </p>
       )}
     </>

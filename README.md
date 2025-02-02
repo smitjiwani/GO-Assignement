@@ -84,3 +84,29 @@ The frontend will be available at http://localhost:5173
 - GET `/api/numbers` - Retrieve the current list of numbers
 - POST `/api/numbers` - Add a new number
   - Request body: `{ "number": <integer> }`
+
+## Testing
+
+### Backend Tests
+1. Navigate to the server directory:
+```bash
+cd server
+```
+
+2. Run the tests:
+```bash
+go test -v
+```
+
+### Integration Tests
+1. Make sure both frontend and backend are running
+2. Test the API endpoints using curl:
+```bash
+# Get current numbers
+curl http://localhost:8080/api/numbers
+
+# Add a new number
+curl -X POST -H "Content-Type: application/json" \
+     -d '{"number": 42}' \
+     http://localhost:8080/api/numbers
+```
