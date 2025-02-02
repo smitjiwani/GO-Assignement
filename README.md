@@ -1,39 +1,86 @@
-# Go Programming - List Manipulation with API
+## Prerequisites
 
-#### Objective:
-Write a Go program that maintains a list of integers and exposes an API to manipulate the list based on the sign of an input number. The program should append the number to the list if its sign matches the sign of the integers in the list. If the sign is opposite, the program should keep reducing the quantity from the list starting from the first element in the list (FIFO basis) till the input number is exhausted and update the list. (Example given below)
+- Docker
+- Docker Compose
+- Git
 
-#### Requirements:
-1. **List Initialization**: Start with an empty list of integers.
-2. **API Endpoint**: Expose an API endpoint that accepts a number as input.
-3. **Sign Matching**:
-   - If the sign of the input number matches the sign of the integers in the list, append the number to the list.
-   - If the sign is opposite, remove the value of the input number starting from the oldest element in the list and update the list.
-4. **Example**: Provide an example of how the API works with a sequence of inputs.
+## Setup Instructions
 
-#### Example:
-Consider the following sequence of inputs:
-- Input: `5`  
-  Updated List: `[5]`  
+### Option 1: Using Docker (Recommended)
 
-- Input: `10`  
-  Updated List: `[5, 10]`  
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd GO-Assignment
+```
 
-- Input: `-6`  
-  Updated List: `[9]`  
-  (Sign is opposite, remove `6` quantity from the list starting from the oldest element `5` → `5 - 5 = 0` and `10` → `10 - 1 = 9`)
+2. Start the application using Docker Compose:
+```bash
+docker-compose up --build
+```
 
+3. Access the application:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8080
 
-#### Deliverables:
-1. **Go Code**: Implement the logic in Go, including the API endpoint. Use `gin` router.
-2. **Example Output**: Provide the output of the program for the example sequence of inputs.
-3. **Explanation**: Briefly explain how the code works and how the list is manipulated based on the input.
-4. **Edge Case**: Think and solve for any edge cases. Mention the edge cases in the explaination README file.
-#### Submission:
-- Submit your Go code file(s) along with a README file that includes instructions on how to run the code and the example output.
+### Option 2: Manual Setup
 
-#### Bonus:
-- Add unit tests to verify the functionality of your code.
-- Add logs.
+#### Prerequisites
+- Go 1.19 or higher
+- Node.js 16 or higher
+- npm or yarn
 
----
+#### Backend Setup
+1. Navigate to the server directory:
+```bash
+cd server
+```
+
+2. Install Go dependencies:
+```bash
+go mod tidy
+```
+
+3. Run the server:
+```bash
+go run main.go
+```
+The server will start on http://localhost:8080
+
+#### Frontend Setup
+1. Open a new terminal and navigate to the frontend directory:
+```bash
+cd frontend
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn
+```
+
+3. Update the API URL in `vite.config.js`:
+```js
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': 'http://localhost:8080'
+    }
+  }
+})
+```
+
+4. Start the development server:
+```bash
+npm run dev
+# or
+yarn dev
+```
+The frontend will be available at http://localhost:5173
+
+## API Endpoints
+
+- GET `/api/numbers` - Retrieve the current list of numbers
+- POST `/api/numbers` - Add a new number
+  - Request body: `{ "number": <integer> }`

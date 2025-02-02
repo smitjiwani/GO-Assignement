@@ -5,20 +5,31 @@ import './App.css'
 function App() {
   const [newNumber, setNewNumber] = useState('')
   const [numbers, setNumbers] = useState([])
+  const [error, setError] = useState('')
 
   useEffect(() => {
     getNumbers()
-  }, [])
+  }, [])   
 
   async function getNumbers() {
-    const res = await axios.get('/api/numbers')
-    setNumbers(res.data.list)
+    try {
+      const res = await axios.get('/api/numbers')
+      setNumbers(res.data.list)
+      setError('')
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to fetch numbers')
+    }
   }
 
   async function addNumber() {
-    await axios.post('/api/numbers', { number: parseInt(newNumber) })
-    getNumbers()
-    setNewNumber('')
+    try {
+      await axios.post('/api/numbers', { number: parseInt(newNumber) })
+      getNumbers()
+      setNewNumber('')
+      setError('')
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to add number')
+    }
   }
 
   return (
