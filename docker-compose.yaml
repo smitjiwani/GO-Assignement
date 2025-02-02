@@ -1,0 +1,27 @@
+---
+services:
+  server:
+    build:
+      context: ./server
+    container_name: "server"
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: "frontend"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+    restart: always
+    stdin_open: true
+    depends_on:
+      - server
+    tty: true
+
+networks:
+  default:
+    name: go_assignment_net
