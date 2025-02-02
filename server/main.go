@@ -35,34 +35,62 @@ func handlePostNumber(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Zero is not allowed"})
 		return
 	}
+
 	if len(numbers) == 0 {
-		if req.Number < 0 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Negative numbers not allowed if the array is empty"})
-			return
-		}
 		numbers = append(numbers, req.Number)
-	} else if (numbers[0] >= 0 && req.Number >= 0) || (numbers[0] < 0 && req.Number < 0) {
-		numbers = append(numbers, req.Number)
-	} else {
-		removeQty := req.Number
-		if removeQty < 0 {
-			removeQty = -removeQty
-		}
-		for removeQty > 0 && len(numbers) > 0 {
-			i := len(numbers) - 1
-			if removeQty >= abs(numbers[i]) {
-				removeQty -= abs(numbers[i])
-				numbers = numbers[:i]
-			} else {
-				if numbers[i] > 0 {
-					numbers[i] -= removeQty
-				} else {
-					numbers[i] += removeQty
+	} else if len(numbers) == 1 {
+		if (numbers[0] > 0 && req.Number > 0) || (numbers[0] < 0 && req.Number < 0) {
+			numbers = append(numbers, req.Number)
+		} else {
+			remainingValue := abs(req.Number)
+			if abs(numbers[0]) <= remainingValue {
+				remainingValue -= abs(numbers[0])
+				numbers = numbers[:0]
+				if remainingValue > 0 {
+					if req.Number > 0 {
+						numbers = append(numbers, remainingValue)
+					} else {
+						numbers = append(numbers, -remainingValue)
+					}
 				}
-				removeQty = 0
+			} else {
+				if numbers[0] > 0 {
+					numbers[0] -= remainingValue
+				} else {
+					numbers[0] += remainingValue
+				}
+			}
+		}
+	} else {
+		if (numbers[0] >= 0 && req.Number >= 0) || (numbers[0] < 0 && req.Number < 0) {
+			numbers = append(numbers, req.Number)
+		} else {
+			remainingValue := abs(req.Number)
+			for i := 0; i < len(numbers) && remainingValue > 0; {
+				if abs(numbers[i]) <= remainingValue {
+					remainingValue -= abs(numbers[i])
+					numbers = append(numbers[:i], numbers[i+1:]...)
+				} else {
+					if numbers[i] > 0 {
+						numbers[i] -= remainingValue
+					} else {
+						numbers[i] += remainingValue
+					}
+					remainingValue = 0
+				}
+			}
+
+			print(remainingValue)
+			if remainingValue > 0 {
+				if req.Number < 0 {
+					numbers = append(numbers, -remainingValue)
+				} else {
+					numbers = append(numbers, remainingValue)
+				}
 			}
 		}
 	}
+	
 	c.JSON(http.StatusOK, gin.H{"list": numbers})
 }
 

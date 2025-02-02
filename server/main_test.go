@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/stretchr/testify/assert"
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNumbersAPI(t *testing.T) {
@@ -15,11 +15,12 @@ func TestNumbersAPI(t *testing.T) {
 	router := setupRoutes()
 	
 	tests := []struct {
-		name           string
-		number         int
-		expectedCode   int
-		expectedError  string
-		expectedList   []int
+		name          string
+		initNumbers   []int
+		number        int
+		expectedCode  int
+		expectedError string
+		expectedList  []int
 	}{
 		{
 			name:         "Add first positive number",
@@ -34,47 +35,53 @@ func TestNumbersAPI(t *testing.T) {
 			expectedError: "Zero is not allowed",
 		},
 		{
-			name:          "Reject negative first number",
-			number:        -3,
-			expectedCode:  http.StatusBadRequest,
-			expectedError: "Negative numbers not allowed if the array is empty",
+			name:         "Add first negative number",
+			number:       -3,
+			expectedCode: http.StatusOK,
+			expectedList: []int{-3},
 		},
 		{
-			name:         "Add another positive number",
+			name:         "Add second positive number",
+			initNumbers:  []int{5},
 			number:       3,
 			expectedCode: http.StatusOK,
 			expectedList: []int{5, 3},
 		},
 		{
-			name:         "Remove with negative number",
+			name:         "Add second negative number",
+			initNumbers:  []int{-3},
 			number:       -2,
 			expectedCode: http.StatusOK,
-			expectedList: []int{5, 1},
+			expectedList: []int{-3, -2},
+		},
+		{
+			name:         "Subtract from [40,40] yields -1",
+			initNumbers:  []int{40, 40},
+			number:       -81,
+			expectedCode: http.StatusOK,
+			expectedList: []int{-1},
 		},
 	}
-
+	
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			numbers = []int{} 
-			
-			if tt.name == "Add another positive number" {
-				numbers = []int{5}
-			} else if tt.name == "Remove with negative number" {
-				numbers = []int{5, 3}
+			numbers = []int{}
+			if len(tt.initNumbers) > 0 {
+				numbers = tt.initNumbers
 			}
-
+			
 			reqBody := map[string]int{"number": tt.number}
 			jsonBody, _ := json.Marshal(reqBody)
 			
 			req, _ := http.NewRequest("POST", "/api/numbers", bytes.NewBuffer(jsonBody))
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, req)
-
+			
 			assert.Equal(t, tt.expectedCode, w.Code)
-
+			
 			var response map[string]interface{}
 			json.Unmarshal(w.Body.Bytes(), &response)
-
+			
 			if tt.expectedError != "" {
 				assert.Equal(t, tt.expectedError, response["error"])
 			} else {
@@ -91,15 +98,15 @@ func TestNumbersAPI(t *testing.T) {
 
 func TestGetNumbers(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	router := setupRoutes()  // Using the router from main.go
+	router := setupRoutes() // ...existing code...
 	numbers = []int{1, 2, 3} // Set up initial state
-
+	
 	req, _ := http.NewRequest("GET", "/api/numbers", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-
+	
 	assert.Equal(t, http.StatusOK, w.Code)
-
+	
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
 	
