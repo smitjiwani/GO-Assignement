@@ -110,3 +110,28 @@ curl -X POST -H "Content-Type: application/json" \
      -d '{"number": 42}' \
      http://localhost:8080/api/numbers
 ```
+
+## Example Output and Explanation
+
+Example Sequence of Inputs:
+1. POST /api/numbers with:
+   { "number": 40 } 
+   → List becomes: [40]
+2. POST /api/numbers with:
+   { "number": 40 }
+   → List becomes: [40, 40]
+3. POST /api/numbers with:
+   { "number": -81 }
+   → List becomes: [-1]
+
+Explanation:
+- The API maintains a list of numbers.
+- Numbers with the same sign are appended.
+- When a number with the opposite sign is submitted, its absolute value is subtracted sequentially from the existing numbers.
+- If the subtraction exceeds the value of current numbers, the remaining value (with the original sign) is added as a new number.
+- Zero is rejected as input.
+
+Edge Cases:
+- Input of zero is not allowed.
+- When subtraction exactly cancels out existing numbers, the list becomes empty.
+- If subtraction partially reduces a number, the remaining balance is updated.
